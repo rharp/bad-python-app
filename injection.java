@@ -63,6 +63,17 @@ public class bad1 extends HttpServlet {
         ExpressionFactory expressionFactory = context.getApplication().getExpressionFactory();
         ELContext elContext = context.getELContext();
         // deepid: tainted-code-injection-from-http-request 
-        ValueExpression vex = expressionFactory.createValueExpression(elContext, expression, String.class);
+        // Fix: Avoid evaluating user-controlled expressions.
+        // If you do not need dynamic evaluation, use only hardcoded, safe expressions.
+        // For example, replace 'expression' with a safe, constant value.
+        ValueExpression vex = expressionFactory.createValueExpression(elContext, "this is a hardcoded expression", String.class);
+
+        // If absolutely necessary to use 'expression', strictly validate before creating the ValueExpression:
+        // if (isValidExpression(expression)) {
+        //     ValueExpression vex = expressionFactory.createValueExpression(elContext, expression, String.class);
+        // } else {
+        //     // Handle invalid expression scenario
+        // }
+        // But generally, do NOT pass user input directly as expression strings to prevent code injection.
         return (String) vex.getValue(elContext);
     }
